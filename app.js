@@ -53,31 +53,46 @@
     input.style.background = `linear-gradient(90deg,${color} ${pct}%,#dfe4f1 ${pct}%)`;
   }
 
+  let lineGridInitialized = false;
+
+  // La cuadrícula y los ejes se dibujan una sola vez. Al cambiar m o b,
+  // solamente se actualizan la recta, el intercepto y los puntos móviles.
+  function ensureLineGrid() {
+    if (lineGridInitialized) return;
+    const p = linePlot;
+    const X = x => p.left + (x - p.xMin) / (p.xMax - p.xMin) * (p.right - p.left);
+    const Y = y => p.bottom - (y - p.yMin) / (p.yMax - p.yMin) * (p.bottom - p.top);
+    const grid = [];
+
+    grid.push(svgEl('rect',{x:p.left,y:p.top,width:p.right-p.left,height:p.bottom-p.top,rx:8,fill:'#fbfcff'}));
+    for (let x=p.xMin; x<=p.xMax; x++) {
+      grid.push(line(X(x),p.top,X(x),p.bottom,{stroke:x===0?'#8995b0':'#e8ecf5','stroke-width':x===0?2:1}));
+      if (x !== 0) grid.push(text(X(x),Y(0)+18,nice(x),{'font-size':11,fill:'#8792aa'}));
+    }
+    const yStep = 5;
+    for (let y=p.yMin; y<=p.yMax; y+=yStep) {
+      grid.push(line(p.left,Y(y),p.right,Y(y),{stroke:y===0?'#8995b0':'#e8ecf5','stroke-width':y===0?2:1}));
+      if (y !== 0) grid.push(text(p.left-17,Y(y)+4,nice(y),{'font-size':10,'text-anchor':'end',fill:'#8792aa'}));
+    }
+    grid.push(text(p.right-2,Y(0)-10,'x',{'font-size':14,'font-weight':800,fill:'#53617f'}));
+    grid.push(text(X(0)+13,p.top+10,'y',{'font-size':14,'font-weight':800,fill:'#53617f'}));
+    grid.push(text(X(0)+12,Y(0)+17,'0',{'font-size':10,fill:'#8792aa','text-anchor':'start'}));
+
+    lineSvg.innerHTML = grid.join('') + '<g id="line-dynamic-layer"></g>';
+    lineGridInitialized = true;
+  }
+
   function renderLineGraph() {
     const s = lineState, p = linePlot;
     const yAtLeft = s.m * p.xMin + s.b, yAtRight = s.m * p.xMax + s.b;
-    // Los límites verticales permanecen fijos; únicamente cambia la recta.
-    const yMin = p.yMin, yMax = p.yMax;
     const X = x => p.left + (x - p.xMin) / (p.xMax - p.xMin) * (p.right - p.left);
-    const Y = y => p.bottom - (y - yMin) / (yMax - yMin) * (p.bottom - p.top);
-    const pieces = [];
-    pieces.push(svgEl('rect',{x:p.left,y:p.top,width:p.right-p.left,height:p.bottom-p.top,rx:8,fill:'#fbfcff'}));
-    for (let x=p.xMin; x<=p.xMax; x++) {
-      pieces.push(line(X(x),p.top,X(x),p.bottom,{stroke:x===0?'#8995b0':'#e8ecf5','stroke-width':x===0?2:1}));
-      if (x !== 0) pieces.push(text(X(x),Y(0)+18,nice(x),{'font-size':11,fill:'#8792aa'}));
-    }
-    const yStep = 5; // Marcas constantes de cinco en cinco.
-    for (let y=Math.ceil(yMin/yStep)*yStep; y<=yMax; y+=yStep) {
-      pieces.push(line(p.left,Y(y),p.right,Y(y),{stroke:y===0?'#8995b0':'#e8ecf5','stroke-width':y===0?2:1}));
-      if (y !== 0) pieces.push(text(p.left-17,Y(y)+4,nice(y),{'font-size':10,'text-anchor':'end',fill:'#8792aa'}));
-    }
-    // Marcas de los ejes y nombres de variables.
-    pieces.push(text(p.right-2,Y(0)-10,'x',{'font-size':14,'font-weight':800,fill:'#53617f'}));
-    pieces.push(text(X(0)+13,p.top+10,'y',{'font-size':14,'font-weight':800,fill:'#53617f'}));
-    // Recta y punto de corte con el eje y.
-    pieces.push(line(X(p.xMin),Y(yAtLeft),X(p.xMax),Y(yAtRight),{stroke:'#4263eb','stroke-width':4,'stroke-linecap':'round'}));
-    pieces.push(svgEl('circle',{cx:X(0),cy:Y(s.b),r:6,fill:'#f19a38',stroke:'#fff','stroke-width':2}));
-    pieces.push(text(X(0)+16,Y(s.b)-12,`(0, ${nice(s.b)})`,{'text-anchor':'start','font-size':11,'font-weight':800,fill:'#c17b28'}));
+    const Y = y => p.bottom - (y - p.yMin) / (p.yMax - p.yMin) * (p.bottom - p.top);
+    ensureLineGrid();
+
+    const moving = [];
+    moving.push(line(X(p.xMin),Y(yAtLeft),X(p.xMax),Y(yAtRight),{stroke:'#4263eb','stroke-width':4,'stroke-linecap':'round'}));
+    moving.push(svgEl('circle',{cx:X(0),cy:Y(s.b),r:6,fill:'#f19a38',stroke:'#fff','stroke-width':2}));
+    moving.push(text(X(0)+16,Y(s.b)-12,`(0, ${nice(s.b)})`,{'text-anchor':'start','font-size':11,'font-weight':800,fill:'#c17b28'}));
 
     const points = [
       {id:'p1',x:s.x1,y:s.m*s.x1+s.b,color:'#ed6683',label:'P₁',dx:-20,dy:-17},
@@ -85,14 +100,15 @@
     ];
     points.forEach(pt => {
       const cx=X(pt.x), cy=Y(pt.y);
-      pieces.push(svgEl('circle',{cx,cy,r:14,fill:pt.color,opacity:.13}));
-      pieces.push(svgEl('circle',{cx,cy,r:7.5,fill:pt.color,stroke:'#fff','stroke-width':2.5,'data-point':pt.id,class:'draggable-point',style:'cursor:grab'}));
-      pieces.push(text(cx+pt.dx,cy+pt.dy,pt.label,{'font-size':13,'font-weight':800,fill:pt.color,'pointer-events':'none'}));
+      moving.push(svgEl('circle',{cx,cy,r:14,fill:pt.color,opacity:.13}));
+      moving.push(svgEl('circle',{cx,cy,r:7.5,fill:pt.color,stroke:'#fff','stroke-width':2.5,'data-point':pt.id,class:'draggable-point',style:'cursor:grab'}));
+      moving.push(text(cx+pt.dx,cy+pt.dy,pt.label,{'font-size':13,'font-weight':800,fill:pt.color,'pointer-events':'none'}));
     });
-    // El origen se marca discretamente cuando no coincide con los elementos anteriores.
-    pieces.push(text(X(0)+12,Y(0)+17,'0',{'font-size':10,fill:'#8792aa','text-anchor':'start'}));
-    lineSvg.innerHTML = pieces.join('');
-    lineSvg.dataset.yMin = yMin; lineSvg.dataset.yMax = yMax;
+
+    // Solo se reemplaza este grupo; los ejes y la cuadrícula permanecen intactos.
+    lineSvg.querySelector('#line-dynamic-layer').innerHTML = moving.join('');
+    lineSvg.dataset.yMin = p.yMin;
+    lineSvg.dataset.yMax = p.yMax;
     $('p1-coords').textContent = `P₁(${nice(s.x1)}, ${nice(s.m*s.x1+s.b)})`;
     $('p2-coords').textContent = `P₂(${nice(s.x2)}, ${nice(s.m*s.x2+s.b)})`;
   }
@@ -413,4 +429,3 @@
   renderModel();
   resetChallenge();
 })();
-
