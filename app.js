@@ -413,3 +413,4 @@
   renderModel();
   resetChallenge();
 })();
+
