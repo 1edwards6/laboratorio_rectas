@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101a35">
+  <meta name="description" content="Laboratorio interactivo para explorar la pendiente, el corte con el eje y y el movimiento rectilíneo.">
+  <title>Laboratorio de rectas | Matemáticas</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#inicio" aria-label="Laboratorio de rectas, inicio">
+      <span class="brand-mark" aria-hidden="true">ƒ</span>
+      <span><strong>LABORATORIO</strong><small>DE RECTAS</small></span>
+    </a>
+    <div class="top-note"><span class="live-dot"></span> Explora · Mueve · Descubre</div>
+  </header>
+
+  <main id="inicio" class="shell">
+    <section class="intro">
+      <div class="eyebrow">MATEMÁTICAS EN MOVIMIENTO <span>·</span> EXPLORACIÓN INTERACTIVA</div>
+      <h1>Una recta puede<br><span>contar una historia.</span></h1>
+      <p>Manipula sus parámetros, encuentra la pendiente con dos puntos y descubre cómo una situación de movimiento se representa en el plano cartesiano.</p>
+    </section>
+
+    <nav class="tabs" role="tablist" aria-label="Actividades">
+      <button class="tab active" id="tab-linea" role="tab" aria-selected="true" aria-controls="panel-linea" data-tab="linea"><span class="tab-num">01</span><span>Explora la recta</span></button>
+      <button class="tab" id="tab-modelo" role="tab" aria-selected="false" aria-controls="panel-modelo" data-tab="modelo"><span class="tab-num">02</span><span>Rectas y movimiento</span></button>
+      <button class="tab" id="tab-reto" role="tab" aria-selected="false" aria-controls="panel-reto" data-tab="reto"><span class="tab-num">03</span><span>Reto de 5 segundos</span></button>
+    </nav>
+
+    <section class="panel active" id="panel-linea" role="tabpanel" aria-labelledby="tab-linea">
+      <div class="section-heading">
+        <div><div class="eyebrow">ACTIVIDAD 01</div><h2>Construye y transforma una recta</h2></div>
+        <span class="level-tag">Exploración guiada</span>
+      </div>
+      <div class="equation-banner">
+        <div><span class="mini-label">ECUACIÓN DE LA RECTA</span><div class="equation" aria-live="polite">y = <span class="m-color" id="eq-m">1</span>x <span id="eq-sign">+</span> <span class="b-color" id="eq-b">2</span></div></div>
+        <div class="parameter-key"><span><i class="key-dot m-dot"></i><b>m</b> pendiente</span><span><i class="key-dot b-dot"></i><b>b</b> corte con eje y</span></div>
+      </div>
+
+      <div class="explorer-grid">
+        <div class="graph-card card">
+          <div class="card-head"><div><h3>Plano cartesiano</h3><p>Arrastra los puntos sobre la recta.</p></div><span class="drag-hint"><span class="drag-icon">✥</span> ARRASTRABLE</span></div>
+          <div class="graph-wrap"><svg id="line-graph" viewBox="0 0 900 500" role="img" aria-label="Gráfica interactiva de una recta con dos puntos arrastrables"></svg></div>
+          <div class="point-readouts">
+            <div class="point-readout p1-readout"><span class="point-symbol p1-symbol">P₁</span><div><small>PRIMER PUNTO</small><strong id="p1-coords">P₁(−3, −1)</strong></div></div>
+            <div class="point-readout p2-readout"><span class="point-symbol p2-symbol">P₂</span><div><small>SEGUNDO PUNTO</small><strong id="p2-coords">P₂(3, 5)</strong></div></div>
+          </div>
+        </div>
+
+        <aside class="controls-column">
+          <div class="card parameter-card">
+            <div class="card-head"><div><h3>Modifica los parámetros</h3><p>Observa qué cambia en la recta.</p></div><span class="control-icon">↗</span></div>
+            <div class="parameter-control">
+              <div class="control-title"><label for="slope">Pendiente <span class="m-color">m</span></label><output id="slope-value">1</output></div>
+              <input id="slope" type="range" min="-4" max="4" step="1" value="1" class="range-input slope-range">
+              <div class="range-labels"><span>−4</span><span>0</span><span>4</span></div>
+              <p class="control-explain">Indica cuánto sube o baja la recta cuando avanzas una unidad a la derecha.</p>
+            </div>
+            <div class="control-separator"></div>
+            <div class="parameter-control">
+              <div class="control-title"><label for="intercept">Corte con eje y <span class="b-color">b</span></label><output id="intercept-value">2</output></div>
+              <input id="intercept" type="range" min="-5" max="5" step="1" value="2" class="range-input intercept-range">
+              <div class="range-labels"><span>−5</span><span>0</span><span>5</span></div>
+              <p class="control-explain">Indica dónde la recta cruza el eje vertical. Es el valor de y cuando x = 0.</p>
+            </div>
+            <button class="button button-light full" id="reset-line">↺ Restablecer recta</button>
+          </div>
+          <div class="card observation-card">
+            <div class="observation-icon">✦</div><div><h3>Observa</h3><p id="observation-text">La recta sube de izquierda a derecha. Cruza el eje y en 2.</p></div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="procedure-card card">
+        <div class="procedure-top"><div><div class="eyebrow">PON EN PRÁCTICA EL PROCEDIMIENTO</div><h3>Calcula la pendiente usando dos puntos</h3><p>Los puntos P₁ y P₂ pertenecen a la recta. Muévelos y utiliza sus coordenadas.</p></div><div class="formula-chip">m = <span class="fraction"><span>y₂ − y₁</span><span>x₂ − x₁</span></span></div></div>
+        <div class="procedure-bottom">
+          <div class="calculation-input"><label for="student-slope">¿Qué pendiente obtuviste?</label><div class="answer-row"><input id="student-slope" type="number" step="any" inputmode="decimal" placeholder="Tu resultado"><button class="button button-primary" id="check-slope">Comprobar</button></div><p id="slope-feedback" class="feedback" aria-live="polite">Calcula primero con las coordenadas que aparecen en la gráfica.</p></div>
+          <div class="verify-box"><button class="text-button" id="show-calculation" aria-expanded="false">Ver cálculo del aplicativo <span>＋</span></button><div id="calculation-detail" class="calculation-detail" hidden></div></div>
+        </div>
+      </div>
+      <p class="small-note">En esta exploración, m y b toman valores enteros para que los puntos de la recta tengan coordenadas enteras. Al arrastrarlos, su coordenada x se ajusta a la cuadrícula y su coordenada y se calcula con la ecuación.</p>
+    </section>
+
+    <section class="panel" id="panel-modelo" role="tabpanel" aria-labelledby="tab-modelo" hidden>
+      <div class="section-heading"><div><div class="eyebrow">ACTIVIDAD 02</div><h2>Una recta describe el movimiento</h2></div><span class="level-tag">Modelo de velocidad constante</span></div>
+      <div class="story-intro"><span class="story-icon">🚗</span><div><h3>El recorrido del carrito</h3><p>Imagina que el carrito avanza por una vía recta con velocidad constante. Arrástralo por el camino y observa cómo se construye la gráfica de distancia frente al tiempo. La escala del plano cartesiano permanece fija para que puedas comparar la inclinación.</p></div></div>
+      <div class="motion-layout">
+        <div class="card road-card">
+          <div class="card-head"><div><h3>Camino del carrito</h3><p>Arrastra el carrito o utiliza el control inferior.</p></div><span class="unit-tag">DISTANCIA (m)</span></div>
+          <div class="road-wrap"><svg id="model-road" viewBox="0 0 900 180" role="img" aria-label="Carrito arrastrable en un camino de cero a cincuenta metros"></svg></div>
+          <div class="road-values"><div><small>POSICIÓN</small><strong><span id="car-position">0.0</span> <em>m</em></strong></div><div><small>TIEMPO TRANSCURRIDO</small><strong><span id="car-time">0.0</span> <em>s</em></strong></div></div>
+          <label class="slider-label" for="car-position-slider">Posición del carrito</label><input id="car-position-slider" type="range" min="0" max="50" step="0.1" value="0" class="range-input car-range">
+          <div class="range-labels"><span>Inicio · 0 m</span><span>50 m</span></div>
+        </div>
+        <div class="card speed-card">
+          <div class="card-head"><div><h3>Velocidad constante</h3><p>Cambia la rapidez del movimiento.</p></div><span class="speed-icon">↗</span></div>
+          <div class="speed-number"><strong id="speed-value">5.0</strong><span>m/s</span></div>
+          <input id="speed-slider" type="range" min="1" max="10" step="0.5" value="5" class="range-input speed-range">
+          <div class="range-labels"><span>1 m/s</span><span>10 m/s</span></div>
+          <div class="model-equation"><small>MODELO DEL MOVIMIENTO</small><strong>d = <span id="model-speed-equation">5</span>t</strong><p>Distancia = velocidad × tiempo</p></div>
+          <button class="button button-light full" id="reset-model">↺ Volver al inicio</button>
+        </div>
+      </div>
+      <div class="card chart-card"><div class="card-head"><div><h3>Distancia en función del tiempo</h3><p>La escala del tiempo permanece fija de 0 a 50 s. Observa cómo cambia la inclinación de la recta al modificar la velocidad.</p></div><span class="chart-legend"><i></i> d(t)</span></div><div class="graph-wrap chart-wrap"><svg id="model-chart" viewBox="0 0 900 450" role="img" aria-label="Gráfica de distancia en función del tiempo"></svg></div><div class="chart-caption"><span> Eje horizontal: tiempo (s)</span><span>Eje vertical: distancia (m)</span></div></div>
+      <div class="question-strip"><span>?</span><p><strong>Piensa:</strong> Si aumentas la velocidad, ¿qué sucede con la inclinación de la recta? ¿Y si el carrito tarda más en recorrer la misma distancia?</p></div>
+    </section>
+
+    <section class="panel" id="panel-reto" role="tabpanel" aria-labelledby="tab-reto" hidden>
+      <div class="section-heading"><div><div class="eyebrow">ACTIVIDAD 03</div><h2>¿Qué gráfica dibuja tu movimiento?</h2></div><span class="level-tag challenge-tag">Reto experimental</span></div>
+      <div class="challenge-banner"><div class="challenge-number">5<span>s</span></div><div><h3>¡Tú controlas el movimiento!</h3><p>El carrito avanza a velocidad constante. Pulsa el botón para alternar entre avanzar y detenerse durante cinco segundos.</p></div></div>
+      <div class="card challenge-card">
+        <div class="challenge-status"><span class="status-pill" id="challenge-status"><i></i> LISTO PARA INICIAR</span><span class="timer" id="challenge-timer">0.0 <small>/ 5.0 s</small></span></div>
+        <div class="road-wrap challenge-road-wrap"><svg id="challenge-road" viewBox="0 0 900 180" role="img" aria-label="Carrito que avanza a velocidad constante cuando está en movimiento"></svg></div>
+        <div class="challenge-position"><span>Posición actual</span><strong><span id="challenge-position-value">0.0</span> m</strong></div>
+        <div class="challenge-speed"><span>Velocidad constante mientras avanza</span><strong>5 m/s</strong></div>
+        <div class="challenge-actions"><button class="button button-challenge" id="start-challenge">▶ INICIAR · 5 SEGUNDOS</button><button class="button button-light" id="reset-challenge">↺ Reiniciar</button></div>
+        <p class="challenge-instruction" id="challenge-instruction">Pulsa INICIAR: el carrito avanzará a velocidad constante. Vuelve a pulsar para detenerlo o reanudarlo durante los cinco segundos.</p>
+      </div>
+      <div class="card final-chart-card" id="final-chart-card"><div class="card-head"><div><h3>Tu gráfica: distancia recorrida vs. tiempo</h3><p>Se mostrará al terminar el experimento.</p></div><span class="chart-legend challenge-legend"><i></i> Distancia acumulada</span></div><div class="empty-chart" id="empty-chart"><div class="empty-chart-icon">⌁</div><strong>La gráfica aparecerá aquí</strong><span>Primero realiza el reto de cinco segundos.</span></div><div class="graph-wrap final-graph-wrap" id="final-graph-wrap" hidden><svg id="challenge-chart" viewBox="0 0 900 450" role="img" aria-label="Gráfica final de distancia acumulada recorrida frente al tiempo"></svg></div><div class="chart-caption" id="final-chart-caption" hidden><span>Eje horizontal: tiempo (s)</span><span>Eje vertical: distancia acumulada (m)</span></div><div class="result-line" id="challenge-result" hidden></div></div>
+      <p class="small-note">Durante los cinco segundos, el botón alterna entre movimiento y reposo. Cuando el carrito avanza, lo hace siempre a 5 m/s: por eso la gráfica tiene segmentos rectos inclinados. Cuando se detiene, la gráfica queda horizontal. El tiempo sigue transcurriendo incluso durante las pausas.</p>
+    </section>
+
+    <footer class="footer"><span>LABORATORIO DE RECTAS</span><span>Explorar también es una forma de aprender matemáticas.</span></footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
