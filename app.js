@@ -35,7 +35,9 @@
   // ---------------------------------------------------------------------------
   const lineState = { m: 1, b: 2, x1: -3, x2: 3, dragging: null };
   const lineSvg = $('line-graph');
-  const linePlot = { left: 66, right: 874, top: 26, bottom: 448, xMin: -5, xMax: 5 };
+  // Escala fija: la cuadrícula no cambia al modificar m o b.
+  // Los límites contienen todas las rectas posibles (m entre -4 y 4, b entre -5 y 5).
+  const linePlot = { left: 66, right: 874, top: 26, bottom: 448, xMin: -5, xMax: 5, yMin: -25, yMax: 25 };
 
   function equationText(m,b) {
     const mx = m === 0 ? '' : (m === 1 ? 'x' : m === -1 ? '−x' : `${nice(m)}x`);
@@ -54,9 +56,8 @@
   function renderLineGraph() {
     const s = lineState, p = linePlot;
     const yAtLeft = s.m * p.xMin + s.b, yAtRight = s.m * p.xMax + s.b;
-    let yMin = Math.floor(Math.min(0, yAtLeft, yAtRight) - 2);
-    let yMax = Math.ceil(Math.max(0, yAtLeft, yAtRight) + 2);
-    if (yMax - yMin < 8) { yMin = Math.min(yMin, -4); yMax = Math.max(yMax, 4); }
+    // Los límites verticales permanecen fijos; únicamente cambia la recta.
+    const yMin = p.yMin, yMax = p.yMax;
     const X = x => p.left + (x - p.xMin) / (p.xMax - p.xMin) * (p.right - p.left);
     const Y = y => p.bottom - (y - yMin) / (yMax - yMin) * (p.bottom - p.top);
     const pieces = [];
@@ -65,7 +66,7 @@
       pieces.push(line(X(x),p.top,X(x),p.bottom,{stroke:x===0?'#8995b0':'#e8ecf5','stroke-width':x===0?2:1}));
       if (x !== 0) pieces.push(text(X(x),Y(0)+18,nice(x),{'font-size':11,fill:'#8792aa'}));
     }
-    const yStep = (yMax-yMin > 32) ? 4 : (yMax-yMin > 20 ? 2 : 1);
+    const yStep = 5; // Marcas constantes de cinco en cinco.
     for (let y=Math.ceil(yMin/yStep)*yStep; y<=yMax; y+=yStep) {
       pieces.push(line(p.left,Y(y),p.right,Y(y),{stroke:y===0?'#8995b0':'#e8ecf5','stroke-width':y===0?2:1}));
       if (y !== 0) pieces.push(text(p.left-17,Y(y)+4,nice(y),{'font-size':10,'text-anchor':'end',fill:'#8792aa'}));
